@@ -1,0 +1,13 @@
+.venv
+
+.env
+.env.*
+!.env.example
+
+.venv/
+__pycache__/
+*.py[cod]
+.env
+StoresApp.db
+.pytest_cache/
+learning/
