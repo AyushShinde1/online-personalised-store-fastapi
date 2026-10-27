@@ -1,0 +1,23 @@
+{% include "layout.html" %}
+
+<h1>Login</h1>
+
+<form id='loginForm'>
+    <div>
+        <label for="username">Username</label>
+        <input type="text" id="username" name="username">
+    </div>
+    <div id="username_error"></div>
+
+    <div>
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password">
+    </div>
+    <div id="password_error"></div>
+
+    <button type="login">Login</button>
+    <a href="/auth/register-page">New User? Register</a>
+
+    <p id="loginMessage" role="status" aria-live="polite"></p>
+</form>
+<script src=/static/js/login.js></script>

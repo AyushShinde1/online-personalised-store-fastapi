@@ -5,45 +5,64 @@
 <form id="registerForm">
     <div>
         <label for="username">Username</label>
-        <input type="text" id="username" name="username" required>
+        <input type="text" id="username" name="username" minlength="6" maxlength="50" required>
+        <small>Must be 6–50 characters long.</small>
     </div>
+    <div id="username_error"></div>
 
     <div>
         <label for="password">Password</label>
-        <input type="password" id="password" name="password" required>
+        <input type="password" id="password" name="password" minlength="8"
+            pattern="(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[^A-Za-z0-9]).{8,}"
+            title="At least 8 characters, including uppercase, lowercase, a number, and a special character."
+            required
+        >
+        <small>At least 8 characters, with uppercase, lowercase, a number, and a special character.</small>
     </div>
+    <div id="password_error"></div>
 
     <div>
         <label for="first_name">First Name</label>
         <input type="text" id="first_name" name="first_name" required>
     </div>
+    <div id="first_name_error"></div>
 
     <div>
         <label for="last_name">Last Name</label>
         <input type="text" id="last_name" name="last_name" required>
     </div>
+    <div id="last_name_error"></div>
 
-    <div>
+    <div style='display: none;'>
         <label for="role">Role</label>
-        <select id="role" name="role" required>
+        <select id="role" name="role">
             <option value="">Select Role</option>
             <option value="user">User</option>
             <option value="admin">Admin</option>
         </select>
     </div>
+    <div style='display: none;' id="role_error"></div>
 
     <div>
         <label for="phone_number">Phone Number</label>
-        <input type="tel" id="phone_number" name="phone_number" required>
+        <input type="tel" id="phone_number" name="phone_number" pattern="[0-9]{10}"
+            title="Enter a 10-digit phone number." 
+            required
+        >
     </div>
+    <div id="phone_number_error"></div>
 
     <div>
         <label for="email">Email</label>
         <input type="email" id="email" name="email" required>
     </div>
+    <div id="email_error"></div>
 
     <button type="submit">Register</button>
+    <a href="/auth/login-page">Existing User? Login</a>
 
-    <p id="registerMessage" role="status"></p>
+
+
+    <p id="registerMessage" role="status" aria-live="polite"></p>
 </form>
 <script src="/static/js/register.js"></script>

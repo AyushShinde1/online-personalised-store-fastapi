@@ -1,0 +1,33 @@
+{% extends "layout.html" %}
+
+{% block content %}
+    <h1>Welcome, {{ username }}!</h1>
+    <p>You have successfully logged in.</p>
+
+    <button id='Logout' type='button'>Logout</button>
+
+    <script>
+        document.getElementById("Logout").addEventListener("click", async function () {
+            try {
+                const response = await fetch("/auth/logout", {
+                    method: "POST",
+                    credentials: "same-origin"
+                });
+
+                if (response.ok) {
+                    window.location.href = "/auth/login-page";
+                } else {
+                    const data = await response.json();
+                    alert(data.detail || data.message || "Logout failed.");
+                }
+            } catch (error) {
+                console.error("Logout error:", error);
+                alert("Unable to connect to the server. Please try again.");
+            }
+        });
+
+    </script>
+{% endblock %}
+
+
+right temp js script here to call logout endpoint

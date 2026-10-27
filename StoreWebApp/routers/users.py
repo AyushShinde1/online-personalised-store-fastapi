@@ -1,8 +1,10 @@
 from fastapi import APIRouter, Depends, status, HTTPException
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 from typing import Annotated
 from sqlalchemy.orm import Session
 from collections.abc import Generator
+
+import re
 
 from ..models import Users
 from ..database import SessionLocal
@@ -32,9 +34,33 @@ class CreateUserRequest(BaseModel):
     password: str
     first_name: str
     last_name: str
-    role: str
+    role: str | None = None
+    # phone_number: str = Field(pattern=r"^\d{10}$")
     phone_number: str
     email: str
+
+    @field_validator("password")
+    @classmethod
+    def validate_password(cls, password:str) -> str:
+        if len(password) < 8:
+            raise ValueError("Password must be at least 8 characters long")
+        if not re.search(r"[A-Z]", password):
+            raise ValueError("Password must contain at least one uppercase letter")
+        if not re.search(r"[a-z]", password):
+            raise ValueError("Password must contain at least one lowercase letter")
+        if not re.search(r"[0-9]", password):
+            raise ValueError("Password must contain at least one number")
+        if not re.search(r"[^A-Za-z0-9]", password):
+            raise ValueError("Password must contain at least one special character")
+        return password
+
+    @field_validator("phone_number")
+    @classmethod
+    def validate_phone_number(cls, value: str) -> str:
+        if not value.isdigit() or len(value) != 10:
+            raise ValueError("Phone number must contain exactly 10 digits.")
+        return value
+
 
 @router.post('/create-user', status_code=status.HTTP_201_CREATED)
 def create_user(db: db_dependency, create_user_request: CreateUserRequest):
@@ -53,7 +79,7 @@ def create_user(db: db_dependency, create_user_request: CreateUserRequest):
         hashed_password=hashed_password,
         first_name=create_user_request.first_name,
         last_name=create_user_request.last_name,
-        role=create_user_request.role,
+        # role=create_user_request.role,
         phone_number=create_user_request.phone_number,
         email=create_user_request.email
     )

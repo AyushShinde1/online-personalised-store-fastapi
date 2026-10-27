@@ -1,0 +1,14 @@
+form > div[id$="_error"] {
+    color: red;
+    font-size: 13px;
+    margin: 4px 0 10px;
+}
+
+input[aria-invalid="true"] {
+    border: 1px solid red;
+}
+
+#registerMessage {
+    white-space: pre-line;
+    margin-top: 12px;
+}

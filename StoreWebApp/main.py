@@ -3,7 +3,7 @@ from fastapi import FastAPI, Request, HTTPException
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
-from .routers import users, auth
+from .routers import users, auth, items
 from .models import Base
 from .database import engine
 
@@ -37,6 +37,23 @@ app = FastAPI()
 #         content={"msg": exc.errors()[0]["msg"]}
 #     )
 
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(
+    request: Request,
+    exc: RequestValidationError
+):
+    errors = []
+
+    for error in exc.errors():
+        errors.append({
+            "field": error["loc"][-1],
+            "message": error["msg"].removeprefix("Value error, ")
+        })
+
+    return JSONResponse(
+        status_code=422,
+        content={"errors": errors}
+    )
 #Overwrite HTTPException and Pydantics Output  End
 
 Base.metadata.create_all(bind=engine)
@@ -62,3 +79,4 @@ def health_check():
 
 app.include_router(users.router)
 app.include_router(auth.router)
+app.include_router(items.router)

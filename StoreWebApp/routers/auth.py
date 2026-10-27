@@ -1,7 +1,7 @@
-from fastapi import APIRouter, status, Depends,HTTPException, Request
+from fastapi import APIRouter, status, Depends,HTTPException, Request, Response
 from sqlalchemy.orm import Session
 from typing import Annotated
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 import os
 from dotenv import load_dotenv
@@ -13,6 +13,7 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 import secrets
 
 from fastapi.templating import Jinja2Templates
+from fastapi.responses import RedirectResponse, JSONResponse
 
 from ..database import SessionLocal, blacklisted_tokens
 from ..models import Users
@@ -60,11 +61,13 @@ def decode_access_token(token: str) -> dict:
 #Access Token End
 
 
-security = HTTPBearer()
+security = HTTPBearer(auto_error=False)
 
 def get_current_user(credentials: Annotated[HTTPAuthorizationCredentials, Depends(security)],):
     token = credentials.credentials
-    print(token)
+    scheme = credentials.scheme
+
+    print(scheme,token,sep=":")
     try:
         payload = decode_access_token(token)
     except InvalidTokenError:
@@ -98,7 +101,7 @@ def get_db():
 db_dependency = Annotated[Session, Depends(get_db)]
 
 class UserLoginRequest(BaseModel):
-    username: str
+    username: str = Field(min_length=3)
     password: str
 
 
@@ -113,9 +116,38 @@ templates = Jinja2Templates(
 
 
 @router.get("/register-page")
-def render_login_page(request: Request):
+def render_register_page(request: Request):
     return templates.TemplateResponse(request=request, name="register.html")
 
+
+@router.get('/login-page')
+def render_login_page(request: Request):
+    return templates.TemplateResponse(request=request, name="login.html")
+
+@router.get("/home")
+def render_home_page(request: Request):
+    token = request.cookies.get("access_token")
+
+    if not token:
+        return RedirectResponse(url="/auth/login-page", status_code=303)
+
+    try:
+        payload = decode_access_token(token)
+    except InvalidTokenError:
+        response = RedirectResponse(url="/auth/login-page", status_code=303)
+
+    jti = payload.get("jti")
+
+    if not jti or jti in blacklisted_tokens:
+        response = RedirectResponse(url="/auth/login-page", status_code=303)
+        response.delete_cookie("access_token")
+        return response
+
+    return templates.TemplateResponse(request=request, name="homepage.html",
+        context={
+            "username": payload.get("username")
+        }
+    )
 ###  Pages   End   Up  ###
 
 
@@ -135,36 +167,59 @@ def user_login(db: db_dependency, user_login_request: UserLoginRequest) -> dict:
 
     access_token = create_acess_token(user.username, user.id, user.role)
 
-    return {'access_token': access_token}
+    # return {'access_token': access_token}
+    response = JSONResponse(
+        content={"message":"Login Successful"}
+    )
+
+    response.set_cookie(
+        key="access_token",
+        value=access_token,
+        httponly=True,
+        secure=False, #will be setting true when using https
+        samesite="lax",
+        max_age= ACCESS_TOKEN_EXPIRE_MINUTES*60,
+        path="/"
+    )
+
+    return response
 
 
 @router.post("/logout", status_code=status.HTTP_200_OK)
-def user_logout(credentials: Annotated[HTTPAuthorizationCredentials, Depends(security)]):
-    token = credentials.credentials
+# def user_logout(credentials: Annotated[HTTPAuthorizationCredentials, Depends(security)]):
+    # token = credentials.credentials
+# def user_logout(request: Request):
+    # token = request.cookies.get("access_token")
+def user_logout(request: Request, response: Response
+                , credentials: Annotated[HTTPAuthorizationCredentials | None, Depends(security)] = None):
+
+    # print(credentials.credentials)
+    # print(request.cookies.get("access_token"))
+    token = (credentials.credentials if credentials else request.cookies.get("access_token"))
 
     try:
         payload = decode_access_token(token)
     except InvalidTokenError:
-        raise HTTPException(
-            status_code=401,
-            detail="Invalid or expired token"
-        )
+        raise HTTPException(status_code=401, detail="Invalid or expired token")
 
     jti = payload.get("jti")
 
     if not jti:
-        raise HTTPException(
-            status_code=401,
-            detail="Token ID missing"
-        )
+        raise HTTPException(status_code=401, detail="Token ID missing")
 
     if jti in blacklisted_tokens:
-        raise HTTPException(
-            status_code=401,
-            detail="Already logged out"
-        )
+        raise HTTPException(status_code=401, detail="Already logged out")
 
     blacklisted_tokens.add(jti)
+
+    #Delete browser cookies
+    response.delete_cookie(
+        key="access_token",
+        path="/",
+        httponly=True,
+        secure=False,  # Use True in production with HTTPS
+        samesite="lax",
+    )
 
     return {"message": "Successfully logged out"}
 
