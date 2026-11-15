@@ -2,6 +2,8 @@
 <html lang="en">
 <head>
     <link rel="stylesheet" href="{{ url_for('static', path='css/register.css') }}">
+    {# <link rel="stylesheet" href="{{ url_for('static', path='css/create_store.css') }}"> #}
+    {% block styles %}{% endblock %}
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>OnlinePersonalizedStore</title>
@@ -10,5 +12,6 @@
     {% block content %}
     {% endblock content %}
 
+    {% block js %}{% endblock %}
 </body>
 </html>

@@ -11,3 +11,8 @@ __pycache__/
 StoresApp.db
 .pytest_cache/
 learning/
+seed_fake_data.py
+seed_fake_data_2.py
+seed_fake_data_locally.py
+StoreWebApp/templates_static_bkp_20261114/
+StoreWebApp/static/images/

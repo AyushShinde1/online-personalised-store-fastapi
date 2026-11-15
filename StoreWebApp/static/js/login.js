@@ -101,7 +101,25 @@ document.addEventListener("DOMContentLoaded", ()=> {
         try {
             loginMessage.textContent = 'Log in...';
 
-            const response = await fetch("/auth/login",{
+            // const response = await fetch("/auth/login",{
+            //     method: "POST",
+            //     headers: {
+            //         "Content-Type": "application/json"
+            //     },
+            //     body: JSON.stringify(userData)
+            // });
+
+            const params = new URLSearchParams(
+                window.location.search
+            );
+            
+            const next = params.get("next");
+            
+            const loginUrl = next
+                ? `/auth/login?next=${encodeURIComponent(next)}`
+                : "/auth/login";
+            
+            const response = await fetch(loginUrl, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
@@ -167,10 +185,10 @@ document.addEventListener("DOMContentLoaded", ()=> {
             // Redirect to the home page
             window.location.href = "/home";
 
-            //We will use cookies
+            //We will use cookies   
             */
 
-            window.location.href = "/auth/home";
+            window.location.href = result.redirect_url;
 
             loginForm.reset();
 

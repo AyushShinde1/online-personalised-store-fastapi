@@ -72,6 +72,8 @@ def create_user(db: db_dependency, create_user_request: CreateUserRequest):
     # Hash the password
     hashed_password = hash_password(create_user_request.password)
 
+    print("Received Role:", create_user_request.role)
+
     # Create a SQLAlchemy model instance
     create_user_model = Users(
         username=create_user_request.username,
@@ -79,7 +81,7 @@ def create_user(db: db_dependency, create_user_request: CreateUserRequest):
         hashed_password=hashed_password,
         first_name=create_user_request.first_name,
         last_name=create_user_request.last_name,
-        # role=create_user_request.role,
+        role=create_user_request.role,
         phone_number=create_user_request.phone_number,
         email=create_user_request.email
     )

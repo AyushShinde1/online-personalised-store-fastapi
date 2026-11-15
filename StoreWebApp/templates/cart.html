@@ -1,0 +1,30 @@
+{% extends "layout.html" %}
+
+{% block styles %}
+    <link rel="stylesheet" href="{{ url_for('static', path='css/cart.css') }}">
+{% endblock %}
+
+
+{% block content %}
+<h1>My Shopping Cart</h1>
+
+<div id="cartContainer">
+    Loading cart...
+</div>
+
+<h2>
+    Total: <span id="cartTotal">₹0.00</span>
+</h2>
+
+<button id="checkoutBtn">
+    Proceed to Checkout
+</button>
+
+<a href="/store/">Continue Shopping</a>
+
+{% endblock content %}
+
+
+{% block js %}
+    <script src="/static/js/cart.js"></script>
+{% endblock %}

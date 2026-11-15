@@ -1,0 +1,144 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f4f6f9;
+    color: #222;
+}
+
+header {
+    background: #1e293b;
+    color: white;
+    padding: 20px 5%;
+}
+
+header a {
+    color: white;
+    text-decoration: none;
+}
+
+.container {
+    max-width: 1100px;
+    width: 92%;
+    margin: 40px auto;
+}
+
+.product-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 35px;
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+}   
+
+.product-image {
+    width: 100%;
+    height: 400px;
+    object-fit: contain;
+    background: #f8f8f8;
+    border-radius: 10px;
+}
+
+.product-info h1 {
+    margin-top: 0;
+}
+
+.price {
+    color: #2563eb;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.mrp {
+    text-decoration: line-through;
+    color: #888;
+    font-size: 17px;
+    margin-left: 10px;
+}
+
+.description {
+    line-height: 1.7;
+    color: #555;
+}
+
+.owner-actions {
+    margin-top: 25px;
+}
+
+button {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+#editBtn {
+    background: #2563eb;
+    color: white;
+}
+
+#saveBtn {
+    background: #16a34a;
+    color: white;
+}
+
+#cancelBtn {
+    background: #64748b;
+    color: white;
+}
+
+#editForm {
+    display: none;
+    margin-top: 30px;
+    background: white;
+    padding: 25px;
+    border-radius: 10px;
+}
+
+.form-group {
+    margin-bottom: 18px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 7px;
+    font-weight: bold;
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 11px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 15px;
+}
+
+.form-group textarea {
+    min-height: 120px;
+    resize: vertical;
+}
+
+#message {
+    margin-top: 15px;
+}
+
+.store-link {
+    color: #2563eb;
+    text-decoration: none;
+}
+
+@media(max-width: 750px) {
+    .product-layout {
+        grid-template-columns: 1fr;
+        padding: 18px;
+    }
+    .product-image {
+        height: 280px;
+    }
+}

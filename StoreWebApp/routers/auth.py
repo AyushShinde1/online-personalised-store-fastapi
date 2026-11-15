@@ -20,6 +20,7 @@ from ..models import Users
 from ..security import verify_password
 
 from pathlib import Path
+from urllib.parse import urlparse
 
 
 router = APIRouter(
@@ -63,9 +64,9 @@ def decode_access_token(token: str) -> dict:
 
 security = HTTPBearer(auto_error=False)
 
-def get_current_user(credentials: Annotated[HTTPAuthorizationCredentials, Depends(security)],):
-    token = credentials.credentials
-    scheme = credentials.scheme
+def get_current_user(request: Request, credentials: Annotated[HTTPAuthorizationCredentials | None, Depends(security)] = None):
+    token = (credentials.credentials if credentials else request.cookies.get("access_token"))
+    scheme = credentials.scheme if credentials else "Bearer"
 
     print(scheme,token,sep=":")
     try:
@@ -88,6 +89,24 @@ def get_current_user(credentials: Annotated[HTTPAuthorizationCredentials, Depend
 
     return payload
 
+
+def require_login_redirect(request: Request):
+
+    try:
+        return get_current_user(request)
+
+    except HTTPException:
+
+        next_url = request.url.path
+
+        response = RedirectResponse(
+            url=f"/auth/login-page?next={next_url}",
+            status_code=303
+        )
+
+        response.delete_cookie("access_token")
+
+        return response
 
 
 def get_db():
@@ -124,7 +143,7 @@ def render_register_page(request: Request):
 def render_login_page(request: Request):
     return templates.TemplateResponse(request=request, name="login.html")
 
-@router.get("/home")
+@router.get("/home-page")
 def render_home_page(request: Request):
     token = request.cookies.get("access_token")
 
@@ -153,7 +172,7 @@ def render_home_page(request: Request):
 
 
 @router.post('/login', status_code=status.HTTP_200_OK)
-def user_login(db: db_dependency, user_login_request: UserLoginRequest) -> dict:
+def user_login(db: db_dependency, user_login_request: UserLoginRequest, next: str | None = None) -> dict:
     ''' User Login'''
     user = db.query(Users).filter(user_login_request.username == Users.username).first()
 
@@ -167,9 +186,39 @@ def user_login(db: db_dependency, user_login_request: UserLoginRequest) -> dict:
 
     access_token = create_acess_token(user.username, user.id, user.role)
 
+    role_redirects = {
+    "admin": "/auth/home-page",
+    "Business Owner": "/store/",
+    "user": "/store"
+    }
+
+    redirect_url = role_redirects.get(user.role, "/")
+
+    # response = RedirectResponse(
+    #     url=role_redirects.get(user.role),
+    #     status_code=303
+    # )
+
+    # Restore the originally requested store URL
+    if next:
+        parsed = urlparse(next)
+
+        if (
+            parsed.path.startswith("/store/")
+            and not parsed.scheme
+            and not parsed.netloc
+            and not parsed.path.startswith("//")
+            and not parsed.query
+            and not parsed.fragment
+        ):
+            redirect_url = next
+
     # return {'access_token': access_token}
     response = JSONResponse(
-        content={"message":"Login Successful"}
+        content={
+            "message":"Login Successful",
+            "redirect_url":redirect_url
+            }
     )
 
     response.set_cookie(

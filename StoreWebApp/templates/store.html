@@ -1,0 +1,241 @@
+{% extends "layout.html" %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', path='css/store.css') }}">
+{% endblock %}
+
+{% block content %}
+{# NAVIGATION BAR #}
+<nav class="navbar">
+    <div class="nav_storename brand">
+        My Online Store
+    </div>
+
+    <div class="nav-actions">
+
+        <!-- Store selector -->
+        <div id="storeSelectorContainer" 
+             class="store-selector-container"
+             hidden>
+
+            <select name="storeDropdown" id="storeDropdown">
+                <option value="">Select Store</option>
+            </select>
+
+            <span id="singleStoreName"></span>
+        </div>
+
+        <div id="ownerActions" hidden>
+
+            <a href="/store/create-store-page"
+               class="nav-btn add-store-btn">
+                + Add Store
+            </a>
+
+            <button id="addProductBtn"
+                    class="nav-btn add-product-btn">
+                + Add Product
+            </button>
+        </div>
+
+        <div id="cartButton" 
+            class="nav-btn"
+            hidden>
+            🛒 View Cart
+        </div>
+        
+        <button id="logoutBtn" class="nav-btn logout-btn">
+            Logout
+        </button>
+
+    </div>
+</nav>
+
+{# MAIN CONTENT #}
+<main class="container">
+
+    {# STORE HEADER #}
+    <section id="storeHeader" 
+             class="store-header"
+             hidden>
+        <div class="store-cover">
+            <img src=""
+                 alt="Store Background" 
+                 id="storeBackground">
+        </div>
+
+        <div class="store-info">
+            <img src="" 
+                 alt="" 
+                 id="storeDP"
+                 class="store-db">
+                
+            <div>
+                <h1 id="storeTitle">
+                    My Online Store
+                </h1>
+
+                <p id="storeDescription"></p>
+            </div>
+        </div>
+
+    </section>
+
+
+    {# Page Heading #}
+    <section id="products-section">
+        <div id="section-heading">
+
+            <div>
+                <h2 id="productsHeading">
+                    All Products
+                </h2>
+
+                <p id="productCount">
+                    Loading Products...
+                </p>
+            </div>
+
+        </div>
+
+        {# LOADING #}
+        <div id="loadingMessage">
+            Loading store...
+        </div>
+
+        {# ERROR #}
+        <div id="errorMessage" 
+             class="error-message"
+             hidden>
+        </div>
+
+        <!-- PRODUCTS -->
+        <div id="productsContainer"
+             class="products-grid">
+        </div>
+
+        {# EmPTY STATE #}
+        <div id="emptyMessage" 
+             class="empty-message"
+             hidden>
+
+            <h3>No Products Found</h3>
+
+            <p>
+                There are currently no products available in this store.
+            </p>
+        </div>
+
+    </section>
+</main>
+
+
+
+<!-- ADD PRODUCT MODAL -->
+<div id="productModal" class="modal" hidden>
+    
+    <div class="modal-content">
+
+        <div class="modal-heading">
+
+            <h2>Add New Product</h2>
+
+            <button id="closeProductModal" type="button">
+                    &times;
+            </button>
+        
+        </div>
+    
+
+        <form id="productForm">
+
+            <label for="product_name">
+                Product Name
+            </label>
+
+            <input type="text"
+                   id="product_name"
+                   name="product_name"
+                   required
+                   maxlength="200">
+
+            <label for="sku">
+                SKU
+            </label>
+            <input type="text"
+                   id="sku"
+                   name="sku"
+                   required>
+
+            <label for="brand">
+                Brand
+            </label>
+            <input type="text"
+                   id="brand"
+                   name="brand">
+
+            <label for="product_description">
+                Description
+            </label>
+            <textarea id="product_description"
+                      name="product_description"
+                      required></textarea>
+
+            <label for="mrp">
+                MRP
+            </label>
+            <input type="number"
+                   id="mrp"
+                   name="mrp"
+                   min="0"
+                   step="0.01"
+                   required>
+
+            <label for="product_price">
+                Selling Price
+            </label>
+            <input type="number"
+                   id="product_price"
+                   name="product_price"
+                   min="0"
+                   step="0.01"
+                   required>
+
+            <label for="stock_quantity">
+                Stock Quantity
+            </label>
+            <input type="number"
+                   id="stock_quantity"
+                   name="stock_quantity"
+                   min="0"
+                   value="0"
+                   required>
+
+            <label for="main_img_url">
+                Product Image URL
+            </label>
+            <input type="url"
+                   id="main_img_url"
+                   name="main_img_url">
+
+            <input type="hidden"
+                   id="productStoreName"
+                   name="storename">
+
+            <p id="productFormMessage"></p>
+
+            <button type="submit"
+                    id="saveProductBtn">
+                Create Product
+            </button>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock content %}
+{% block js %}
+<script src="/static/js/store.js"></script>
+{% endblock %}

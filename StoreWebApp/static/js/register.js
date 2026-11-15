@@ -112,7 +112,8 @@ document.addEventListener("DOMContentLoaded", () => {
             last_name: formData.get("last_name"),
             role: formData.get("role"),
             phone_number: formData.get("phone_number"),
-            email: formData.get("email")
+            email: formData.get("email"),
+            role: formData.get("role")
         };
 
         try {

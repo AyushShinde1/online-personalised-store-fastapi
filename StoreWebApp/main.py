@@ -3,7 +3,7 @@ from fastapi import FastAPI, Request, HTTPException
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
-from .routers import users, auth, items
+from .routers import users, auth, store, product, cart, reviews, categories, orders
 from .models import Base
 from .database import engine
 
@@ -79,4 +79,9 @@ def health_check():
 
 app.include_router(users.router)
 app.include_router(auth.router)
-app.include_router(items.router)
+app.include_router(product.router)
+app.include_router(store.router)
+app.include_router(cart.router)
+app.include_router(reviews.router)
+app.include_router(categories.router)
+app.include_router(orders.router)

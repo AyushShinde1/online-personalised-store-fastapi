@@ -1,0 +1,206 @@
+{% extends "layout.html" %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', path='css/product_detail.css') }}">
+{% endblock %}
+
+
+{% block content %}
+<header>
+    <a href="/store/">← Back to Products</a>
+</header>
+
+<div class="container">
+
+    <div class="product-layout">
+
+        <div>
+            <img 
+                class="product-image"
+                src="{{ product.main_img_url or 'https://placehold.co/500x400' }}" 
+                alt="{{ product.product_name }}"
+            >
+        </div>
+
+        <div class="product-info">
+
+            <h1>{{ product.product_name }}</h1>
+
+            <p>
+                Brand: {{ product.brand or "Not Specified" }}
+            </p>
+
+            <div class="price">
+
+                ₹{{ product.product_price }}
+                
+                {% if product.mrp > product.product_price %}
+                    <span class="mrp">
+                        ₹{{ product.mrp }}
+                    </span>
+                {% endif %}
+
+            </div>
+
+            <p>
+                ⭐ {{ product.product_rating }}
+                ({{ product.rating_count }} ratings)
+            </p>
+
+            <p>
+                {% if product.stock_quantity > 0 %}
+                    <strong style="color:green">In Stock</strong>
+                {% else %}
+                    <strong style="color:red">Out of Stock</strong>
+                {% endif %}
+            </p>
+
+            <p>
+                SKU: {{ product.sku }}
+            </p>
+
+            <p>
+                Store:
+                <a class="store-link"
+                   href="/store/{{ store.storename }}">
+                    {{ store.storename }}
+                </a>
+            </p>
+
+            <h3>Product Description</h3>
+
+            <p class="description">
+                {{ product.product_description }}
+            </p>
+
+            {% if product.is_returnable %}
+                <p>✓ Returnable product</p>
+            {% endif %}
+
+            {% if is_store_owner %}
+
+                <div class="owner-actions">
+                    <button id="editBtn">
+                        Edit Product
+                    </button>
+                </div>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+    <!-- EDIT FORM: STORE OWNER ONLY -->
+
+    {% if is_store_owner %}
+
+        <form id="editForm">
+
+            <h2>Edit Product</h2>
+
+            <div class="form-group">
+                <label>Product Name</label>
+                <input
+                    type="text"
+                    id="product_name"
+                    value="{{ product.product_name }}"
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label>Brand</label>
+                <input
+                    type="text"
+                    id="brand"
+                    value="{{ product.brand or '' }}"
+                >
+            </div>
+
+            <div class="form-group">
+                <label>Product Description</label>
+                <textarea
+                    id="product_description"
+                    required
+                >{{ product.product_description }}</textarea>
+            </div>
+
+            <div class="form-group">
+                <label>MRP</label>
+                <input
+                    type="number"
+                    id="mrp"
+                    value="{{ product.mrp }}"
+                    min="0"
+                    step="0.01"
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label>Selling Price</label>
+                <input
+                    type="number"
+                    id="product_price"
+                    value="{{ product.product_price }}"
+                    min="0"
+                    step="0.01"
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label>Stock Quantity</label>
+                <input
+                    type="number"
+                    id="stock_quantity"
+                    value="{{ product.stock_quantity }}"
+                    min="0"
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label>Product Image URL</label>
+                <input
+                    type="url"
+                    id="main_img_url"
+                    value="{{ product.main_img_url or '' }}"
+                >
+            </div>
+
+            <div class="form-group">
+                <label>Discount Percentage</label>
+                <input
+                    type="number"
+                    id="discount_percentage"
+                    value="{{ product.discount_percentage or 0 }}"
+                    min="0"
+                    max="100"
+                >
+            </div>
+
+            <button type="submit" id="saveBtn">
+                Save Changes
+            </button>
+
+            <button type="button" id="cancelBtn">
+                Cancel
+            </button>
+
+            <p id="message"></p>
+
+        </form>
+
+    {% endif %}
+
+</div>
+{% endblock content %}
+
+
+{% if is_store_owner %}
+    {% block js %}
+        <script src="/static/js/product_detail.js"></script>
+    {% endblock %}
+{% endif %}

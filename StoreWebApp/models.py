@@ -17,7 +17,7 @@ class Users(Base):
 
     id=Column(Integer, primary_key=True, index=True)
     username=Column(String(100), unique=True, nullable=False, index=True)
-    #password=Column(String, nullable=False) #storing it temporarily for testing
+    password=Column(String, nullable=False) #storing it temporarily for testing
     first_name=Column(String(100), nullable=False)
     last_name=Column(String(100))
     hashed_password=Column(String, nullable=False)
@@ -29,13 +29,17 @@ class Users(Base):
     stores = relationship("Store", back_populates="owner")
     reviews = relationship("ProductRatingReview", back_populates="user")
     cart_items = relationship("CartItem", back_populates="user")
+    orders = relationship("Order", back_populates="user", cascade="all, delete-orphan")
 
 
 class Store(Base):
     __tablename__ = 'stores'
 
     id = Column(Integer, primary_key=True, index=True)
-    store_name = Column(String(200), nullable=False)
+    storename = Column(String(200), nullable=False)
+    store_description = Column(String)
+    store_dp_path = Column(String(200))
+    store_background_img_path = Column(String(200))
     create_date = Column(DateTime(timezone=True), nullable=False)
     update_date = Column(DateTime(timezone=True),nullable=False, onupdate=utc_now)
     user_id_fk = Column(Integer, ForeignKey("users.id"))
@@ -75,6 +79,7 @@ class Product(Base):
     category = relationship("Category", back_populates="products")
     reviews = relationship("ProductRatingReview", back_populates="product")
     cart_items = relationship("CartItem", back_populates="product")
+    order_items = relationship( "OrderItem", back_populates="product")
 
 
 class ProductRatingReview(Base):
@@ -134,3 +139,67 @@ class CartItem(Base):
 
     user = relationship("Users", back_populates="cart_items")
     product = relationship("Product", back_populates="cart_items")
+
+
+class Order(Base):
+    __tablename__ = "orders"
+
+    id = Column(Integer, primary_key=True, index=True)
+
+    user_id_fk = Column(
+        Integer,
+        ForeignKey("users.id"),
+        nullable=False,
+        index=True
+    )
+
+    total_amount = Column(Numeric(10, 2), nullable=False)
+
+    # pending, paid, shipped, delivered, cancelled
+    status = Column(String(30), nullable=False, default="pending")
+
+    create_date = Column(
+        DateTime(timezone=True),
+        nullable=False,
+        default=utc_now
+    )
+
+    update_date = Column(
+        DateTime(timezone=True),
+        onupdate=utc_now
+    )
+
+    user = relationship("Users", back_populates="orders")
+
+    items = relationship(
+        "OrderItem",
+        back_populates="order",
+        cascade="all, delete-orphan"
+    )
+
+
+class OrderItem(Base):
+    __tablename__ = "order_items"
+
+    id = Column(Integer, primary_key=True, index=True)
+
+    order_id_fk = Column(
+        Integer,
+        ForeignKey("orders.id"),
+        nullable=False
+    )
+
+    product_id_fk = Column(
+        Integer,
+        ForeignKey("products.id"),
+        nullable=False
+    )
+
+    quantity = Column(Integer, nullable=False)
+
+    # Save the product price at purchase time
+    purchase_price = Column(Numeric(10, 2), nullable=False)
+
+    order = relationship("Order", back_populates="items")
+
+    product = relationship("Product", back_populates="order_items")

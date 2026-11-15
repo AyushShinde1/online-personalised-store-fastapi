@@ -5,3 +5,4 @@ pwdlib[argon2]
 PyJWT
 python-dotenv
 jinja2
+Faker #Just to add Fake data  to db
